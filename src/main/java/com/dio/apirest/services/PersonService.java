@@ -31,10 +31,29 @@ public class PersonService {
     }    
 
     public Person findPerson(long id) throws NotFoundException{
+
+        validateExistance(id);
+
+        return personRepository.getById(id);
+    }
+
+    public void kill(long id) throws NotFoundException{
+        validateExistance(id);
+        personRepository.deleteById(id);
+    }
+
+    public void change(long id, Person newPerson) throws NotFoundException{ 
+        validateExistance(id);
+        Person oldPerson = personRepository.getById(id);
+        if(newPerson.getFirstName() != null) oldPerson.setFirstName(newPerson.getFirstName());
+        if(newPerson.getLastName() != null) oldPerson.setLastName(newPerson.getLastName());
+        if(newPerson.getCpf() != null) oldPerson.setCpf(newPerson.getCpf());
+        if(newPerson.getBirthDate() != null) oldPerson.setBirthDate(newPerson.getBirthDate());
+        personRepository.save(oldPerson);
+    }
+
+    private void validateExistance(long id) throws NotFoundException {
         Optional<Person> person = personRepository.findById(id);
-        if(person.isEmpty()){
-            throw new NotFoundException(id); 
-        } 
-        return person.get();
+        if(person.isEmpty()) throw new NotFoundException(id); 
     }
 }
